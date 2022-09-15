@@ -1,10 +1,12 @@
 const contacts = require("./contacts");
 
+const { Command } = require("commander");
+
 const invokeAction = async ({ action, id, name, email, phone }) => {
   switch (action) {
     case "list":
       const allContacts = await contacts.listContacts();
-      console.log(allContacts);
+      console.table(allContacts);
       break;
 
     case "get":
@@ -37,23 +39,14 @@ const invokeAction = async ({ action, id, name, email, phone }) => {
   }
 };
 
-// invokeAction(argv);
-// invokeAction({ action: "list" });
-// invokeAction({ action: "get", id: "35" });
-// invokeAction({
-//   action: "add",
-//   name: "Cheburator",
-//   email: "lotok@magazin.s.yaicami",
-//   phone: "(066) 555-44-33",
-// });
-// invokeAction({
-//   action: "update",
-//   id: "pWcVled3bJOFo_egWqmD7",
-//   name: "Cheburator2022",
-//   email: "lotok@magazin.s.yaicami",
-//   phone: "(066) 555-44-33",
-// });
-// invokeAction({
-//   action: "remove",
-//   id: "29Ij-JMjNIjicRLnEQpRw",
-// });
+const program = new Command();
+program
+  .option("-a, --action <type>", "choose action")
+  .option("-i, --id <type>", "user id")
+  .option("-n, --name <type>", "user name")
+  .option("-e, --email <type>", "user email")
+  .option("-p, --phone <type>", "user phone");
+
+program.parse(process.argv);
+const argv = program.opts();
+invokeAction(argv);
