@@ -1,21 +1,59 @@
-const contactsPath = "./db/contacts.json";
+const fs = require("fs/promises");
+const { nanoid } = require("nanoid");
+const path = require("path");
+
+const contactsPath = path.join(__dirname, "/db/contacts.json");
+const updateContacts = async (contacts) =>
+  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
 
 // TODO: задокументувати кожну функцію
-function listContacts() {
-  return console.log(3);
-  // ...твій код
-}
+const listContacts = async () => {
+  const data = await fs.readFile(contactsPath, "utf-8");
+  return JSON.parse(data);
+};
 
-function getContactById(contactId) {
-  // ...твій код
-}
+const getContactById = async (id) => {
+  const contacts = await listContacts();
+  const contactById = contacts.find((contact) => contact.id === id);
+  return contactById || null;
+};
 
-function removeContact(contactId) {
-  // ...твій код
-}
+const removeContact = async (id) => {
+  const contacts = await listContacts();
+  const index = contacts.findIndex((contact) => contact.id === id);
+  if (index === -1) return null;
 
-function addContact(name, email, phone) {
-  // ...твій код
-}
+  const [result] = contacts.splice(index, 1);
+  await updateContacts(contacts);
+  return result;
+};
 
-module.exports = { listContacts, getContactById, removeContact, addContact };
+const addContact = async ({ name, email, phone }) => {
+  const contacts = await listContacts();
+  const newContact = {
+    id: nanoid(),
+    name,
+    email,
+    phone,
+  };
+  contacts.push(newContact);
+  await updateContacts(contacts);
+  return newContact;
+};
+
+const updateContact = async ({ id, name, email, phone }) => {
+  const contacts = await listContacts();
+  const index = contacts.findIndex((contact) => contact.id === id);
+  if (index === -1) return null;
+  contacts[index] = { id, name, email, phone };
+  await updateContacts(contacts);
+  return contacts[index];
+};
+
+module.exports = {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+  updateContact,
+};
